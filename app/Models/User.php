@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class User extends Model
 {
     protected $fillable = [
-        'firstname','middlename','surname','password','email','phone_no','terms_cond','registration_status'
+        'firstname','middlename','surname','email','password','phone_no','terms_cond','registration_status'
     ];
 
     public function otp()
