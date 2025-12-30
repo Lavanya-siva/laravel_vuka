@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\OtpVerification;
+use Illuminate\Auth\Events\Registered;
+use App\Mail\OtpMail;
+use Illuminate\Support\Facades\Mail;
+
 
 class CreateAccountController extends Controller
 {
@@ -16,6 +20,8 @@ class CreateAccountController extends Controller
 
     public function createAccount(Request $request)
     {
+         
+        
         $request->validate([
             'firstname' => 'required|string',
             'middlename' => 'nullable|string',
@@ -35,19 +41,26 @@ class CreateAccountController extends Controller
             'terms_cond' => true,
         ]);
 
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Account creation failed'
+            ], 500);
+        }
+
         $otp = rand(100000, 999999);
 
         OtpVerification::create([
             'user_id' => $user->id,
             'otp_code' => $otp,
             'sent_at' => now(),
-            'expires_at' => now()->addMinutes(5),
+            'expires_at' => now()->addMinutes(10),
         ]);
-
+        Mail::to($user->email)->send(new OtpMail($user, $otp));//send otp o mail
         return response()->json([
-            'message' => 'OTP sent',
-            'user_id' => $user->id,
-            'otp_code' => $otp
-        ]);
+        'success' => true,
+        'message' => 'Account created. Verification email sent.',
+        'user_id' => $user->id
+    ], 201);
     }
 }

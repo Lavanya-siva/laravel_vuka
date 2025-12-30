@@ -9,13 +9,9 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
-    public function showLoginForm()
-    {
-        return view('auth.login');
-    }
-    public function login(Request $request)
-{
-    $request->validate([
+    public function login(Request $request){
+    
+        $request->validate([
         'email' => 'required|email',
         'password' => 'required',
     ]);
@@ -25,7 +21,7 @@ class AuthController extends Controller
     if (!$user) {
         return response()->json([
             'success' => false,
-            'message' => 'User not found'
+            'message' => 'Invalid credentials'
         ], 404);
     }
 
