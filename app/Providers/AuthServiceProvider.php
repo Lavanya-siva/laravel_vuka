@@ -1,24 +1,31 @@
-<?php 
-use Illuminate\Auth\Notifications\VerifyEmail;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Support\ServiceProvider;
+<?php
 
-class AppServiceProvider extends ServiceProvider{ 
-public function boot(): void
+namespace App\Providers;
+
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+
+class AuthServiceProvider extends ServiceProvider
 {
-    VerifyEmail::toMailUsing(function ($notifiable, $url) {
+    /**
+     * The policy mappings for the application.
+     *
+     * @var array
+     */
+    protected $policies = [
+        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
+    ];
 
-        $otp = $notifiable->email_otp ?? 'Not generated';
+    /**
+     * Register any authentication / authorization services.
+     */
+    public function boot()
+    {
+       /* $this->registerPolicies();
 
-        return (new MailMessage)
-            ->subject('Verify your VUKA account')
-            ->greeting('Hello ' . $notifiable->name)
-            ->line('Thank you for registering with VUKA.')
-            ->line('Use the OTP below to verify your email address:')
-            ->line('OTP: ' . $otp)
-            ->line('This OTP is valid for 10 minutes.')
-            ->line('If you did not create this account, no action is required.')
-            ->salutation('Regards, VUKA Team');
-    });
-}
+        Gate::define('valid-proof-type', function ($user, $proofType) {
+            $allowedTypes = ['National ID', 'Alien ID', 'Passport ID'];
+            return in_array($proofType, $allowedTypes);
+        });*/
+    }
 }

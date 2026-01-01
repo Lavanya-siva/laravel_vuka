@@ -5,50 +5,45 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\PersonalInfo;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 
 class PersonalInfoController extends Controller
 {
-    public function getPersonalInfo(Request $request)
-    {
-        $user_id = $request->query('user_id');
-        $user = User::find($user_id);
-
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
-
-        return response()->json(['user' => $user]);
-    }
-
+     use AuthorizesRequests;
     public function savePersonalInfo(Request $request)
-    {
-        $user = User::find($request->user_id);
-
-        if (!$user) {
-            return response()->json(['message' => 'User not found.'], 404);
-        }
-
-        if ($user->registration_status !== 'otp_verified') {
+    {     
+      
+        $user = $request->user(); 
+        /* if (Gate::denies('valid-proof-type', $request->proof_type)) {
             return response()->json([
-                'message' => 'Cannot save personal info before OTP verification.'
+                'success' => false,
+                'message' => 'Invalid proof type. Allowed types: National ID, Alien ID, Passport ID'
             ], 403);
-        }
-        // otp verified
+        }*/
+        
+        try {
         $request->validate([
-            'user_id' => 'required',
-            'proof_type' => 'required|in:National ID,Alien ID,Passport ID',
-            'id_number' => 'required|string|unique:personal_infos,id_number',
-            'kra_pin' => 'required|string|unique:personal_infos,kra_pin',
-            'date_of_birth' => 'required|date',
-            'nationality' => 'required|string',
-            'country_residence' => 'required|string',
-            'country_birth' => 'required|string',
-            'gender' => 'required|in:Male,Female,Others',
-            'employment_status' => 'required|in:Employed,Unemployed,SelfEmployed',
+        'proof_type' => 'required',
+        'id_number' => 'required|string|unique:personal_infos,id_number',
+        'kra_pin' => 'required|string|unique:personal_infos,kra_pin',
+        'date_of_birth' => 'required|date',
+        'nationality' => 'required|string',
+        'country_residence' => 'required|string',
+        'country_birth' => 'required|string',
+        'gender' => 'required|in:Male,Female,Others',
+        'employment_status' => 'required|in:Employed,Unemployed,SelfEmployed',
         ]);
-
+        }    catch (ValidationException $e) {
+             return response()->json([
+            'success' => false,
+            'errors' => $e->errors()
+            ], 422);
+        }
+        $user = $request->user();
         $personalInfo = PersonalInfo::create([
-            'user_id' => $request->user_id,
+            'user_id' => $user->id,
             'proof_type' => $request->proof_type,
             'id_number' => $request->id_number,
             'kra_pin' => $request->kra_pin,
@@ -69,4 +64,5 @@ class PersonalInfoController extends Controller
             'personal_info' => $personalInfo
         ]);
     }
+
 }

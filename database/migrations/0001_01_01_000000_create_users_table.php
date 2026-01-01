@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->string('middlename')->nullable();
             $table->string('surname');
             $table->string('email')->unique();
+            $table->string('password');
             $table->string('phone_no');
             $table->boolean('terms_cond')->default(false);
             $table->enum('registration_status', [
