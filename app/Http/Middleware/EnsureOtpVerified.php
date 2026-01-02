@@ -8,7 +8,8 @@ use Illuminate\Http\Request;
 class EnsureOtpVerified
 {
     public function handle(Request $request, Closure $next)
-    {
+    {   
+        var_dump("verifying otp...");
         $user = $request->user();
         if (!$user || $user->registration_status != 'otp_verified') {
             return response()->json([

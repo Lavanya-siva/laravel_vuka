@@ -14,7 +14,7 @@ Route::prefix('user')->group(function () {
     Route::post('login', [AuthController::class, 'login']); 
 });
 
-Route::middleware('auth:sanctum')->prefix('user')->group(function () {
+Route::middleware('auth:sanctum','sanctum.expiry')->prefix('user')->group(function () {
     Route::post('verify-otp', [OtpController::class, 'verifyOtp']);
     Route::post('resend-otp', [OtpController::class, 'resendOtp']);
     // Email verification routes
@@ -45,6 +45,6 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
     });
 });
 
-Route::prefix('user')->middleware(['auth:sanctum', 'otp.verified'])->group(function () {
+Route::prefix('user')->middleware(['auth:sanctum','sanctum.expiry', 'otp.verified'])->group(function () {
     Route::post('personal-info', [PersonalInfoController::class, 'savePersonalInfo']);
 });

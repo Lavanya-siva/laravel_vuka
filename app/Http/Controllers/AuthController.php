@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
@@ -39,15 +39,17 @@ class AuthController extends Controller
             ], 403);
         }
 
-       $token = $user->createToken('VukaAPI-login')->plainTextToken;
-
+       $token = $user->createToken('VukaAPI-login');
+       $token->accessToken->expires_at = Carbon::now()->addMinutes(config('sanctum.expiration'));
+       $token->accessToken->save();
 
         return response()->json([
             'success' => true,
             'message' => 'Login successful, now add Personal Info',
             'user' => $user,
-            'access_token' => $token,
+            'access_token' => $token->plainTextToken,
             'token_type' => 'Bearer',
+            'expires_in' => (config('sanctum.expiration') * 60).' sec',
         ], 200);
     }
 

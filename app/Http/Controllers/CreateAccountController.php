@@ -1,17 +1,17 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\OtpVerification;
-use App\Mail\OtpMail;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
+use App\Jobs\SendOtpJob;
 
 class CreateAccountController extends Controller
 {
+
  public function createAccount(Request $request)
 { 
     
@@ -50,16 +50,20 @@ class CreateAccountController extends Controller
         'sent_at' => now(),
         'expires_at' => now()->addMinutes(10),
     ]);
+     
+     SendOtpJob::dispatch($user, $otp);
+   // Mail::to($user->email)->send(new OtpMail($user, $otp)); // send mail-Mail.php-view
 
-    Mail::to($user->email)->send(new OtpMail($user, $otp)); // send mail-Mail.php-view
-
-    $token = $user->createToken('VukaAPI-CreateAccount')->plainTextToken;
-
+    $token = $user->createToken('VukaAPI-CreateAccount'); // hasApiTokens redirect
+    // Set expiry in DB 
+    $token->accessToken->expires_at = Carbon::now()->addMinutes(config('sanctum.expiration'));
+    $token->accessToken->save();
     return response()->json([
         'success' => true,
-        'message' => 'Account created. Verification email sent.',
-        'access_token' => $token,
-        'token_type' => 'Bearer'
+        'message' => 'Account created. Verification email with otp is being sent.',
+        'access_token' => $token->plainTextToken,
+        'token_type' => 'Bearer',
+        'expires_in' => (config('sanctum.expiration') * 60).' sec',
     ], 201);
 }
 

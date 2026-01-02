@@ -12,16 +12,18 @@ class OtpMail extends Mailable
 
     public $user;
     public $otp;
+    public $subjectLine;
 
-    public function __construct($user, $otp)
+    public function __construct($user, $otp,$subjectLine=null)
     {
         $this->user = $user;
         $this->otp  = $otp;
+        $this->subjectLine = $subjectLine ?? 'Your OTP Verification Code';
     }
 
     public function build()
     {
-        return $this->subject('Your OTP Verification Code')
+        return $this->subject($this->subjectLine)
                     ->view('emails.otp-verification');
     }
 }

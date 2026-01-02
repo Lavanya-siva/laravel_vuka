@@ -4,31 +4,36 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\OtpVerification;
 use App\Models\User;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Support\Facades\Gate;
+use App\Jobs\SendOtpJob;
 
 
 
 class OtpController extends Controller{
     use AuthorizesRequests;
-    public function verifyOtp(Request $request)
-{
+    public function verifyOtp(Request $request){
     try{
         $request->validate([
         'otp_code' => 'required|digits:6',
     ]);
-} catch(ValidationException $e){
+    } catch(ValidationException $e){
      return response()->json([
         'success' => false,
         'errors' => $e->errors()
     ], 422);
-}
+    }
+     $user = $request->user(); // current user 
+     //already verified
+        if ($user->registration_status === 'otp_verified') {
+            return response()->json([
+                'message' => 'OTP already verified'
+            ], 400);
+        }
 
     $maxChance = 3;
-    $user = $request->user(); // current user 
+   
     // get latest OTP for this user
     $otpRecord = OtpVerification::where('user_id', $user->id)
         ->latest()
@@ -77,12 +82,12 @@ class OtpController extends Controller{
             'email' => 'required|email',
             'password' => 'required|string'
         ]);
-    } catch(ValidationException $e){
+        } catch(ValidationException $e){
         return response()->json([
         'success' => false,
         'errors' => $e->errors()
-    ], 422);
-    }
+        ], 422);
+        }
 
         $user = User::where('email', $request->email)->first();
 
@@ -91,13 +96,14 @@ class OtpController extends Controller{
                 'message' => 'Invalid Credentials'
             ], 401);
         }
-        
         //already verified
         if ($user->registration_status === 'otp_verified') {
             return response()->json([
                 'message' => 'OTP already verified'
             ], 400);
         }
+        
+        
         //generate new otp
         $otp = rand(100000, 999999);
         $otpRecord = OtpVerification::updateOrCreate(
@@ -111,15 +117,18 @@ class OtpController extends Controller{
         ]
         );
         // send otp
-         Mail::send('emails.otp-verification', [
+       SendOtpJob::dispatch($user, $otp, 'Your OTP Verification Code - Resend');
+
+        /* Mail::send('emails.otp-verification', [
         'user' => $user,
         'otp' => $otp
         ], function ($message) use ($user) {
         $message->to($user->email)
                 ->subject('Your OTP Verification Code-Resend');
-        });
+        });*/
         return response()->json([
-            'message' => 'OTP resent successfully'
+            'success' => true,
+            'message' => 'New OTP is being sent'
         ]);
     }
 }
