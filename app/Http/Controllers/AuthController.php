@@ -35,7 +35,7 @@ class AuthController extends Controller
          if ($user->registration_status !== 'otp_verified') {
             return response()->json([
                 'success' => false,
-                'message' => 'Please verify your OTP before logging in'
+                'message' => 'Please verify your OTP before logging in '
             ], 403);
         }
 

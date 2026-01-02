@@ -9,8 +9,6 @@ class Authenticate
 {
     public function handle(Request $request, Closure $next, $guard = null)
     { 
-
-        var_dump($request->user());
         if (!$request->user()) {
             return response()->json(['message' => 'Unauthenticated!!'], 401);
         }

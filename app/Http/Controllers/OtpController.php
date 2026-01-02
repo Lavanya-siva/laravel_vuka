@@ -24,7 +24,7 @@ class OtpController extends Controller{
         'errors' => $e->errors()
     ], 422);
     }
-     $user = $request->user(); // current user 
+    $user = User::where('email', $request->email)->first(); // get user details by email 
      //already verified
         if ($user->registration_status === 'otp_verified') {
             return response()->json([

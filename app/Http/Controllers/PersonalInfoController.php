@@ -22,7 +22,6 @@ class PersonalInfoController extends Controller
                 'message' => 'Invalid proof type. Allowed types: National ID, Alien ID, Passport ID'
             ], 403);
         }*/
-        
         try {
         $request->validate([
         'proof_type' => 'required',

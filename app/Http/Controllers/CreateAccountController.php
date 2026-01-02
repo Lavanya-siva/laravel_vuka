@@ -53,17 +53,9 @@ class CreateAccountController extends Controller
      
      SendOtpJob::dispatch($user, $otp);
    //Mail::to($user->email)->send(new OtpMail($user, $otp)); // send mail-Mail.php-view
-
-    $token = $user->createToken('VukaAPI-CreateAccount'); // hasApiTokens redirect
-    // Set expiry in DB 
-    $token->accessToken->expires_at = Carbon::now()->addMinutes(config('sanctum.expiration'));
-    $token->accessToken->save();
     return response()->json([
         'success' => true,
         'message' => 'Account created. Verification email with otp is being sent.',
-        'access_token' => $token->plainTextToken,
-        'token_type' => 'Bearer',
-        'expires_in' => (config('sanctum.expiration') * 60).' sec',
     ], 201);
 }
 

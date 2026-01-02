@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
          $middleware->alias([
             'otp.verified' => \App\Http\Middleware\EnsureOtpVerified::class,
             'sanctum.expiry'  => \App\Http\Middleware\CheckSanctumTokenExpiry::class,
-            
+            'auth' => \App\Http\Middleware\Authenticate::class,
         ]); //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
