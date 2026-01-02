@@ -9,13 +9,12 @@ class Authenticate
 {
     public function handle(Request $request, Closure $next, $guard = null)
     { 
-        //auth user ahh?
-        var_dump("sanctum");
-        if (!$request->user()) {
-            return response()->json(['message' => 'Unauthenticated.iii'], 401);
-        }
-        
 
+        var_dump($request->user());
+        if (!$request->user()) {
+            return response()->json(['message' => 'Unauthenticated!!'], 401);
+        }
+    
         return $next($request);
     }
 }

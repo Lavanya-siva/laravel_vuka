@@ -11,7 +11,6 @@ class CheckSanctumTokenExpiry
     public function handle(Request $request, Closure $next)
     {
         $user = $request->user();
-        var_dump("hiii-check token");
         $token = $user->currentAccessToken(); // fetch from author bearer then check in personal token db
 
         // If no token 

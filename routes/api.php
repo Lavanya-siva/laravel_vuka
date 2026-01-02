@@ -12,37 +12,12 @@ use App\Http\Controllers\PersonalInfoController;
 Route::prefix('user')->group(function () {
     Route::post('create-account', [CreateAccountController::class, 'createAccount']);
     Route::post('login', [AuthController::class, 'login']); 
+    
 });
 
-Route::middleware('auth:sanctum','sanctum.expiry')->prefix('user')->group(function () {
+Route::middleware('auth:sanctum')->prefix('user')->group(function () {
     Route::post('verify-otp', [OtpController::class, 'verifyOtp']);
     Route::post('resend-otp', [OtpController::class, 'resendOtp']);
-    // Email verification routes
-    Route::get('email/verify', function (Request $request) {
-        return response()->json([
-            'message' => 'Email verification required'
-        ]);
-    });
-
-    Route::get('email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-        $request->fulfill();
-        return response()->json([
-            'success' => true,
-            'message' => 'Email verified successfully'
-        ]);
-    })->middleware('signed')->name('verification.verify');
-
-    Route::post('email/verification-notification', function (Request $request) {
-        if (!$request->user()) {
-            return response()->json([
-                'message' => 'User not authenticated'
-            ], 401);
-        }
-        $request->user()->sendEmailVerificationNotification();
-        return response()->json([
-            'message' => 'Verification link sent'
-        ]);
-    });
 });
 
 Route::prefix('user')->middleware(['auth:sanctum','sanctum.expiry', 'otp.verified'])->group(function () {

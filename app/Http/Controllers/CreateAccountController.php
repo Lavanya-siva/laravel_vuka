@@ -52,7 +52,7 @@ class CreateAccountController extends Controller
     ]);
      
      SendOtpJob::dispatch($user, $otp);
-   // Mail::to($user->email)->send(new OtpMail($user, $otp)); // send mail-Mail.php-view
+   //Mail::to($user->email)->send(new OtpMail($user, $otp)); // send mail-Mail.php-view
 
     $token = $user->createToken('VukaAPI-CreateAccount'); // hasApiTokens redirect
     // Set expiry in DB 
